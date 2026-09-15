@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getResultById } from '../utils/storage'
 import { STYLES } from '../data/styles'
@@ -10,11 +9,7 @@ import { logEvent } from '../utils/firebase'
 
 export default function Results() {
   const { id } = useParams()
-  const [result, setResult] = useState(null)
-
-  useEffect(() => {
-    setResult(getResultById(id))
-  }, [id])
+  const result = getResultById(id)
 
   if (!result) {
     return <p className="text-center text-slate-500">Result not found.</p>

@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getCurrentUser, setCurrentUser as persistUser } from '../utils/storage'
-
-const SessionContext = createContext(null)
+import { SessionContext } from './session-context'
 
 export function SessionProvider({ children }) {
   const [session, setSessionState] = useState(() => getCurrentUser() || {
@@ -29,10 +28,4 @@ export function SessionProvider({ children }) {
       {children}
     </SessionContext.Provider>
   )
-}
-
-export function useSession() {
-  const ctx = useContext(SessionContext)
-  if (!ctx) throw new Error('useSession must be used within SessionProvider')
-  return ctx
 }

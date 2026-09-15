@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useSession } from '../context/SessionContext'
+import { useSession } from '../context/useSession'
 import { getTeamById, saveTeam } from '../utils/storage'
 import { v4 as uuidv4 } from 'uuid'
 

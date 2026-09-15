@@ -1,17 +1,35 @@
-# React + Vite
+# Leadership Assessment
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A 20-question management style assessment covering decision-making, feedback,
+conflict resolution, delegation, empathy, and more. Multi-select questions
+score across 5 management styles (including the Emotionally Intelligent
+Leader), then generate a personalized growth roadmap.
 
-Currently, two official plugins are available:
+Manager accounts can create a team, invite members by email, and view an
+aggregate team dashboard with style/empathy breakdowns.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- React + Vite + Tailwind CSS v4
+- Recharts for results visualizations
+- Firebase Analytics for usage tracking
+- `mailto:` links for sending results/invites (no backend required)
+- Data persisted in `localStorage` (per-browser, no server)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Development
 
-## Expanding the Oxlint configuration
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Copy `.env.example` to `.env` and fill in Firebase config to enable analytics
+(optional — the app works without it).
 
+## Build
+
+```bash
+npm run build
+```
+
+Deployed via Vercel with auto-deploy on push to `main`.

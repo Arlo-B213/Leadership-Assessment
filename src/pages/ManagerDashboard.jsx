@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useSession } from '../context/SessionContext'
+import { useSession } from '../context/useSession'
 import { getTeamById, getResultsByTeam } from '../utils/storage'
 import { STYLES, STYLE_ORDER } from '../data/styles'
 import StyleBarChart from '../components/StyleBarChart'
@@ -8,15 +8,7 @@ import TeamInviteForm from '../components/TeamInviteForm'
 
 export default function ManagerDashboard() {
   const { session } = useSession()
-  const [team, setTeam] = useState(null)
-  const [results, setResults] = useState([])
-  const [refreshKey, setRefreshKey] = useState(0)
-
-  useEffect(() => {
-    if (!session.teamId) return
-    setTeam(getTeamById(session.teamId))
-    setResults(getResultsByTeam(session.teamId))
-  }, [session.teamId, refreshKey])
+  const [, forceRefresh] = useState(0)
 
   if (!session.teamId) {
     return (
@@ -25,6 +17,9 @@ export default function ManagerDashboard() {
       </p>
     )
   }
+
+  const team = getTeamById(session.teamId)
+  const results = getResultsByTeam(session.teamId)
 
   const teamAverages = STYLE_ORDER.reduce((acc, key) => {
     const vals = results.map((r) => r.scores.percentages[key])
@@ -44,7 +39,7 @@ export default function ManagerDashboard() {
 
       <div className="bg-white border border-slate-200 rounded-xl p-6">
         <h2 className="font-semibold text-slate-900 mb-3">Invite a team member</h2>
-        <TeamInviteForm team={team} managerName={session.name} onInvited={() => setRefreshKey((k) => k + 1)} />
+        <TeamInviteForm team={team} managerName={session.name} onInvited={() => forceRefresh((k) => k + 1)} />
         {team?.invitedEmails?.length > 0 && (
           <p className="text-xs text-slate-400 mt-3">
             Invited: {team.invitedEmails.join(', ')}

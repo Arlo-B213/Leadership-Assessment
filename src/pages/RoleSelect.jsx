@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useSession } from '../context/SessionContext'
+import { useSession } from '../context/useSession'
 
 export default function RoleSelect() {
   const navigate = useNavigate()
@@ -15,7 +15,11 @@ export default function RoleSelect() {
   return (
     <div className="max-w-2xl mx-auto text-center">
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">How will you be using this?</h1>
-      <p className="text-slate-600 mb-8">This determines what you see after your assessment.</p>
+      <p className="text-slate-600 mb-8">
+        {invited
+          ? "You're joining a team via invite — either option will add you to that team."
+          : 'This determines what you see after your assessment.'}
+      </p>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <RoleCard
