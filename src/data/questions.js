@@ -1,0 +1,248 @@
+// 20-question management style assessment.
+// Each question allows MULTIPLE selections (checkboxes) - pick every option
+// that reflects how you actually behave, not just the one "best" answer.
+// Each option carries a weights vector across the 5 styles, plus an
+// independent `empathy` weight used to compute the empathy trait score.
+
+export const QUESTIONS = [
+  {
+    id: 'q1',
+    dimension: 'Decision-Making',
+    text: 'When a decision needs to be made quickly, I tend to...',
+    options: [
+      { id: 'a', text: 'Make the call myself and inform the team', weights: { directive: 3 } },
+      { id: 'b', text: 'Quickly poll a few trusted team members first', weights: { collaborative: 2, eqLeader: 1 }, empathy: 1 },
+      { id: 'c', text: 'Let the person closest to the problem decide', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Connect the decision back to our bigger goal before deciding', weights: { transformational: 3 } },
+      { id: 'e', text: 'Check how the decision will affect people\'s workload or stress first', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q2',
+    dimension: 'Feedback & Recognition',
+    text: 'When someone on my team does great work, I usually...',
+    options: [
+      { id: 'a', text: 'Tell them clearly and move on to the next priority', weights: { directive: 2 } },
+      { id: 'b', text: 'Recognize it publicly in front of the team', weights: { collaborative: 2, transformational: 2 } },
+      { id: 'c', text: 'Trust they already know and don\'t need to be told often', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Tie their success back to the team\'s larger mission', weights: { transformational: 3 } },
+      { id: 'e', text: 'Ask them how it felt and what support helped them get there', weights: { eqLeader: 3 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q3',
+    dimension: 'Conflict Resolution',
+    text: 'When two team members disagree, I typically...',
+    options: [
+      { id: 'a', text: 'Step in and make a final ruling', weights: { directive: 3 } },
+      { id: 'b', text: 'Facilitate a discussion until they reach agreement', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Let them work it out unless it escalates', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Reframe the conflict around our shared goals', weights: { transformational: 2 } },
+      { id: 'e', text: 'Talk to each person privately to understand how they feel first', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q4',
+    dimension: 'Delegation',
+    text: 'When assigning a new project, I usually...',
+    options: [
+      { id: 'a', text: 'Give specific instructions on how to do it', weights: { directive: 3 } },
+      { id: 'b', text: 'Discuss the approach together before starting', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Hand over the outcome and let them choose the approach', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Explain why the project matters for the bigger picture', weights: { transformational: 3 } },
+      { id: 'e', text: 'Consider who would find this project most energizing right now', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q5',
+    dimension: 'Team Development',
+    text: 'When it comes to helping people grow, I focus on...',
+    options: [
+      { id: 'a', text: 'Setting clear performance benchmarks to hit', weights: { directive: 2 } },
+      { id: 'b', text: 'Pairing people up to learn from each other', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Giving people stretch projects and staying out of the way', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Helping people see their long-term career vision', weights: { transformational: 3 } },
+      { id: 'e', text: 'Understanding each person\'s individual motivations and fears', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q6',
+    dimension: 'Accountability',
+    text: 'When someone misses a deadline, my first move is to...',
+    options: [
+      { id: 'a', text: 'Address it directly and reset expectations', weights: { directive: 3 } },
+      { id: 'b', text: 'Discuss as a team what went wrong in the process', weights: { collaborative: 2 } },
+      { id: 'c', text: 'Assume they have it handled and wait to hear from them', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Remind them how it connects to the bigger goal', weights: { transformational: 2 } },
+      { id: 'e', text: 'Ask what got in the way before addressing the miss', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q7',
+    dimension: 'Change Management',
+    text: 'When leading the team through a major change, I...',
+    options: [
+      { id: 'a', text: 'Give a clear directive on what\'s changing and when', weights: { directive: 3 } },
+      { id: 'b', text: 'Gather input on how the change should be rolled out', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Let each person adapt in their own way and time', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Paint a compelling picture of what\'s on the other side', weights: { transformational: 3 } },
+      { id: 'e', text: 'Check in individually on how people are coping emotionally', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q8',
+    dimension: 'Motivation',
+    text: 'To keep the team motivated day-to-day, I rely most on...',
+    options: [
+      { id: 'a', text: 'Clear goals and measurable targets', weights: { directive: 2 } },
+      { id: 'b', text: 'A sense of shared ownership over outcomes', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Giving people freedom to work how they want', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Connecting daily work to a bigger purpose', weights: { transformational: 3 } },
+      { id: 'e', text: 'Making sure people feel seen, heard, and appreciated', weights: { eqLeader: 3 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q9',
+    dimension: 'Wellbeing',
+    text: 'When someone on my team seems stressed or burnt out, I...',
+    options: [
+      { id: 'a', text: 'Help them reprioritize their task list', weights: { directive: 2 } },
+      { id: 'b', text: 'Ask the team how we can redistribute the load', weights: { collaborative: 2 } },
+      { id: 'c', text: 'Trust them to raise it with me if it becomes a real problem', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Remind them why the hard work matters right now', weights: { transformational: 1 } },
+      { id: 'e', text: 'Check in privately and ask what kind of support they need', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q10',
+    dimension: 'Meetings',
+    text: 'In team meetings, I tend to...',
+    options: [
+      { id: 'a', text: 'Set the agenda and drive it firmly', weights: { directive: 3 } },
+      { id: 'b', text: 'Open the floor and encourage everyone to speak', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Keep it brief and let the team self-organize', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Use the time to reconnect everyone to the mission', weights: { transformational: 2 } },
+      { id: 'e', text: 'Read the room and adjust the tone based on team energy', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q11',
+    dimension: 'Goal-Setting',
+    text: 'When setting goals for the team, I usually...',
+    options: [
+      { id: 'a', text: 'Define the goals myself and communicate them clearly', weights: { directive: 3 } },
+      { id: 'b', text: 'Co-create the goals together with the team', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Set the outcome and let the team define how to get there', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Frame goals around an inspiring long-term vision', weights: { transformational: 3 } },
+      { id: 'e', text: 'Make sure the goals feel achievable and fair to everyone involved', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q12',
+    dimension: 'Crisis Management',
+    text: 'In a crisis or high-pressure moment, I...',
+    options: [
+      { id: 'a', text: 'Take charge and issue clear directions', weights: { directive: 3 } },
+      { id: 'b', text: 'Quickly huddle the team to align on a plan', weights: { collaborative: 2 } },
+      { id: 'c', text: 'Trust the experts on the team to lead the response', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Rally the team with a clear sense of purpose', weights: { transformational: 3 } },
+      { id: 'e', text: 'Stay calm and manage the team\'s stress alongside the problem', weights: { eqLeader: 3 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q13',
+    dimension: 'Diversity & Inclusion',
+    text: 'To make sure all voices are heard on the team, I...',
+    options: [
+      { id: 'a', text: 'Explicitly invite quieter team members to share their view', weights: { collaborative: 2, eqLeader: 1 }, empathy: 1 },
+      { id: 'b', text: 'Set clear norms for how discussions should run', weights: { directive: 2 } },
+      { id: 'c', text: 'Give people space to contribute in their own way and time', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Connect inclusion to our shared mission and values', weights: { transformational: 2 } },
+      { id: 'e', text: 'Build individual trust so people feel safe speaking up', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q14',
+    dimension: 'Remote & Hybrid',
+    text: 'Managing a remote or hybrid team, I prioritize...',
+    options: [
+      { id: 'a', text: 'Clear written expectations and deadlines', weights: { directive: 3 } },
+      { id: 'b', text: 'Regular shared syncs to stay aligned', weights: { collaborative: 2 } },
+      { id: 'c', text: 'Trusting people to manage their own schedule', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Keeping the team connected to our bigger goals despite distance', weights: { transformational: 2 } },
+      { id: 'e', text: 'Extra effort to check on morale and isolation', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q15',
+    dimension: 'Innovation',
+    text: 'When the team proposes a new, unproven idea, I...',
+    options: [
+      { id: 'a', text: 'Evaluate it against clear, established criteria', weights: { directive: 2 } },
+      { id: 'b', text: 'Discuss it openly with the whole team before deciding', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Let them run a small experiment on their own', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Get excited about how it could change our trajectory', weights: { transformational: 3 } },
+      { id: 'e', text: 'Make sure they feel safe proposing ideas even if this one fails', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q16',
+    dimension: 'Time Management',
+    text: 'When my own schedule gets overloaded, I...',
+    options: [
+      { id: 'a', text: 'Cut lower-priority items firmly and move on', weights: { directive: 2 } },
+      { id: 'b', text: 'Ask the team to help me reprioritize', weights: { collaborative: 2 } },
+      { id: 'c', text: 'Delegate more and step back from the details', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Refocus on what matters most for the bigger vision', weights: { transformational: 2 } },
+      { id: 'e', text: 'Notice how my stress might be affecting the team and adjust', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q17',
+    dimension: 'Trust Building',
+    text: 'I build trust with my team mainly by...',
+    options: [
+      { id: 'a', text: 'Being consistent and following through on commitments', weights: { directive: 2 } },
+      { id: 'b', text: 'Being transparent and involving them in decisions', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Giving them real autonomy and not micromanaging', weights: { handsOff: 3 } },
+      { id: 'd', text: 'Showing genuine conviction in where we\'re headed', weights: { transformational: 2 } },
+      { id: 'e', text: 'Genuinely listening and remembering what matters to each person', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q18',
+    dimension: 'Performance Reviews',
+    text: 'When giving a difficult performance review, I...',
+    options: [
+      { id: 'a', text: 'Be direct and clear about what needs to change', weights: { directive: 3 } },
+      { id: 'b', text: 'Invite them to self-assess first, then discuss together', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Focus mainly on outcomes, not how they got there', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Frame the feedback around their future growth and potential', weights: { transformational: 2 } },
+      { id: 'e', text: 'Lead with empathy for how hard this feedback might land', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+  {
+    id: 'q19',
+    dimension: 'Vision & Strategy',
+    text: 'When communicating strategy to the team, I...',
+    options: [
+      { id: 'a', text: 'Lay out exactly what needs to happen and by when', weights: { directive: 3 } },
+      { id: 'b', text: 'Workshop the strategy together with the team', weights: { collaborative: 3 } },
+      { id: 'c', text: 'Share the destination and trust the team to chart the path', weights: { handsOff: 2 } },
+      { id: 'd', text: 'Tell a compelling story about where we\'re headed and why', weights: { transformational: 3 } },
+      { id: 'e', text: 'Make sure the strategy feels realistic given the team\'s capacity', weights: { eqLeader: 2 }, empathy: 2 },
+    ],
+  },
+  {
+    id: 'q20',
+    dimension: 'Self-Awareness',
+    text: 'When I reflect on my own management style, I would say...',
+    options: [
+      { id: 'a', text: 'I get things done, even if it means being firm', weights: { directive: 3 } },
+      { id: 'b', text: 'I thrive when the whole team is aligned and bought in', weights: { collaborative: 3 } },
+      { id: 'c', text: 'I do my best work by empowering others, not controlling them', weights: { handsOff: 3 } },
+      { id: 'd', text: 'I\'m at my best painting a vision people want to chase', weights: { transformational: 3 } },
+      { id: 'e', text: 'I lead first with people, and results tend to follow', weights: { eqLeader: 3 }, empathy: 3 },
+    ],
+  },
+]
