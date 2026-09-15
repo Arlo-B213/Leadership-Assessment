@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
@@ -16,6 +17,10 @@ export function logIn(email, password) {
 
 export function logOut() {
   return signOut(auth)
+}
+
+export function resetPassword(email) {
+  return sendPasswordResetEmail(auth, email)
 }
 
 export function watchAuthState(callback) {

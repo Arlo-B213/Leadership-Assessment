@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { useSession } from '../context/useSession'
-import { signUp, logIn, authErrorMessage } from '../utils/authApi'
+import { signUp, logIn, resetPassword, authErrorMessage } from '../utils/authApi'
 import { getTeamById, getUserProfile, saveTeam, saveUserProfile } from '../utils/db'
 
 export default function AuthForm() {
@@ -21,6 +21,7 @@ export default function AuthForm() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [invitedTeam, setInvitedTeam] = useState(undefined)
+  const [resetSent, setResetSent] = useState(false)
 
   useEffect(() => {
     if (!inviteTeamId) {
@@ -93,8 +94,86 @@ export default function AuthForm() {
     }
   }
 
+  async function handleForgotPassword(e) {
+    e.preventDefault()
+    setError('')
+    if (!email.trim()) {
+      setError('Enter your email address first.')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      await resetPassword(email.trim())
+      setResetSent(true)
+    } catch (err) {
+      setError(authErrorMessage(err))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  function switchMode(next) {
+    setMode(next)
+    setError('')
+    setResetSent(false)
+  }
+
   if (invitedTeam === undefined) {
     return <p className="text-center text-slate-500">Loading...</p>
+  }
+
+  if (mode === 'forgot') {
+    return (
+      <div className="max-w-md mx-auto">
+        <h1 className="text-2xl font-bold text-slate-900 mb-2 text-center">Reset your password</h1>
+        <p className="text-slate-600 text-center mb-6">
+          Enter your email and we'll send you a link to reset your password.
+        </p>
+
+        <form onSubmit={handleForgotPassword} className="space-y-4 bg-white border border-slate-200 rounded-xl p-6">
+          <div>
+            <label htmlFor="resetEmail" className="block text-sm font-medium text-slate-700 mb-1">
+              Email address
+            </label>
+            <input
+              id="resetEmail"
+              name="resetEmail"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="jane@company.com"
+            />
+          </div>
+
+          {resetSent && (
+            <p className="text-sm text-emerald-600">
+              If an account exists for that email, a reset link is on its way.
+            </p>
+          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-white font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          >
+            {submitting ? 'Sending...' : 'Send reset link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            className="w-full text-sm text-slate-500 hover:text-slate-700"
+          >
+            ← Back to log in
+          </button>
+        </form>
+      </div>
+    )
   }
 
   return (
@@ -110,13 +189,13 @@ export default function AuthForm() {
 
       <div className="flex rounded-lg border border-slate-200 bg-white p-1 mb-6 text-sm font-medium">
         <button
-          onClick={() => setMode('signup')}
+          onClick={() => switchMode('signup')}
           className={`flex-1 rounded-md py-2 transition-colors ${mode === 'signup' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700'}`}
         >
           Sign Up
         </button>
         <button
-          onClick={() => setMode('login')}
+          onClick={() => switchMode('login')}
           className={`flex-1 rounded-md py-2 transition-colors ${mode === 'login' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700'}`}
         >
           Log In
@@ -176,6 +255,15 @@ export default function AuthForm() {
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="At least 6 characters"
           />
+          {mode === 'login' && (
+            <button
+              type="button"
+              onClick={() => switchMode('forgot')}
+              className="mt-1 text-xs text-indigo-600 hover:underline"
+            >
+              Forgot password?
+            </button>
+          )}
         </div>
 
         {mode === 'signup' && role === 'manager' && !invitedTeam && (
