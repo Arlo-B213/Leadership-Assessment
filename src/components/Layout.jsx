@@ -3,6 +3,14 @@ import { useSession } from '../context/useSession'
 import { logOut } from '../utils/authApi'
 import CheckInBanner from './CheckInBanner'
 
+const TOOL_LINKS = [
+  { to: '/progress', label: 'Progress' },
+  { to: '/practice', label: 'Practice Scenarios' },
+  { to: '/feedback', label: '360 Feedback' },
+  { to: '/conversations', label: 'Conversation Coach' },
+  { to: '/team', label: 'Team Standards' },
+]
+
 export default function Layout({ children }) {
   const { session } = useSession()
   const navigate = useNavigate()
@@ -24,15 +32,20 @@ export default function Layout({ children }) {
               <span className="text-slate-500 hidden sm:inline">
                 {session.name || session.email} · {session.role === 'manager' ? 'Manager' : 'Team Member'}
               </span>
-              <Link to="/progress" className="text-indigo-600 hover:underline hidden sm:inline">
-                Progress
-              </Link>
-              <Link to="/practice" className="text-indigo-600 hover:underline hidden sm:inline">
-                Practice
-              </Link>
-              <Link to="/feedback" className="text-indigo-600 hover:underline hidden sm:inline">
-                360 Feedback
-              </Link>
+              <details className="relative">
+                <summary className="text-indigo-600 hover:underline cursor-pointer list-none">Tools</summary>
+                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg py-1 z-20">
+                  {TOOL_LINKS.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </details>
               {session.role === 'manager' && (
                 <Link to="/dashboard" className="text-indigo-600 hover:underline">
                   Dashboard

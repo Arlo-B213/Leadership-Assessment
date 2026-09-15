@@ -54,6 +54,23 @@ export async function addInviteToTeam(teamId, email) {
   return team
 }
 
+export async function addTeamStandard(teamId, standard) {
+  const team = await getTeamById(teamId)
+  if (!team) return null
+  const standards = team.standards || []
+  standards.push(standard)
+  await saveTeam({ ...team, standards })
+  return standards
+}
+
+export async function removeTeamStandard(teamId, standardId) {
+  const team = await getTeamById(teamId)
+  if (!team) return null
+  const standards = (team.standards || []).filter((s) => s.id !== standardId)
+  await saveTeam({ ...team, standards })
+  return standards
+}
+
 // ---- Roadmap commitments (private accountability nudges) ----
 export async function saveCommitment(commitment) {
   await setDoc(doc(db, 'commitments', commitment.id), commitment)
@@ -96,4 +113,21 @@ export async function getFeedbackRequestsByRequester(requesterUid) {
   const q = query(collection(db, 'feedbackRequests'), where('requesterUid', '==', requesterUid))
   const snap = await getDocs(q)
   return snap.docs.map((d) => d.data())
+}
+
+// ---- Difficult conversation prep sheets ----
+export async function saveConversation(conversation) {
+  await setDoc(doc(db, 'conversations', conversation.id), conversation)
+  return conversation
+}
+
+export async function getConversationsByOwner(ownerUid) {
+  const q = query(collection(db, 'conversations'), where('ownerUid', '==', ownerUid))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => d.data()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+}
+
+export async function getConversationById(id) {
+  const snap = await getDoc(doc(db, 'conversations', id))
+  return snap.exists() ? snap.data() : null
 }

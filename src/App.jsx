@@ -14,6 +14,10 @@ import ScenarioPlay from './pages/ScenarioPlay'
 import FeedbackHub from './pages/FeedbackHub'
 import FeedbackManage from './pages/FeedbackManage'
 import FeedbackRespond from './pages/FeedbackRespond'
+import TeamPage from './pages/TeamPage'
+import ConversationList from './pages/ConversationList'
+import ConversationNew from './pages/ConversationNew'
+import ConversationDetail from './pages/ConversationDetail'
 import { logEvent } from './utils/firebase'
 
 export default function App() {
@@ -39,6 +43,10 @@ export default function App() {
         <Route path="/feedback" element={<FeedbackHub />} />
         <Route path="/feedback/respond/:id" element={<FeedbackRespond />} />
         <Route path="/feedback/:id" element={<FeedbackManage />} />
+        <Route path="/team" element={<TeamPage />} />
+        <Route path="/conversations" element={<ConversationList />} />
+        <Route path="/conversations/new" element={<ConversationNew />} />
+        <Route path="/conversations/:id" element={<ConversationDetail />} />
       </Routes>
     </Layout>
   )

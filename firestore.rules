@@ -48,5 +48,12 @@ service cloud.firestore {
         get(/databases/$(database)/documents/feedbackRequests/$(resource.data.requestId)).data.requesterUid == request.auth.uid;
       allow update, delete: if false;
     }
+
+    match /conversations/{conversationId} {
+      // Difficult-conversation prep sheets - private, owner only.
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+      allow update, delete: if false;
+    }
   }
 }
