@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics, isSupported, logEvent as firebaseLogEvent } from 'firebase/analytics'
+import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,11 +13,11 @@ const firebaseConfig = {
 }
 
 let analytics = null
+export const db = firebaseConfig.apiKey ? getFirestore(initializeApp(firebaseConfig)) : null
 
-if (firebaseConfig.apiKey) {
-  const app = initializeApp(firebaseConfig)
+if (db) {
   isSupported().then((supported) => {
-    if (supported) analytics = getAnalytics(app)
+    if (supported) analytics = getAnalytics(db.app)
   })
 }
 

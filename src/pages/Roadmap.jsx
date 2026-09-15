@@ -1,11 +1,17 @@
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getResultById } from '../utils/storage'
+import { getResultById } from '../utils/db'
 import { buildRoadmap } from '../utils/scoring'
 
 export default function Roadmap() {
   const { id } = useParams()
-  const result = getResultById(id)
+  const [result, setResult] = useState(undefined)
 
+  useEffect(() => {
+    getResultById(id).then(setResult)
+  }, [id])
+
+  if (result === undefined) return <p className="text-center text-slate-500">Loading roadmap...</p>
   if (!result) return <p className="text-center text-slate-500">Result not found.</p>
 
   const roadmap = buildRoadmap(result.scores)

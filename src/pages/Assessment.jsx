@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { QUESTIONS } from '../data/questions'
 import { computeScores } from '../utils/scoring'
 import { useSession } from '../context/useSession'
-import { saveResult } from '../utils/storage'
+import { saveResult } from '../utils/db'
 import ProgressBar from '../components/ProgressBar'
 import QuestionCard from '../components/QuestionCard'
 import { v4 as uuidv4 } from 'uuid'
@@ -14,6 +14,7 @@ export default function Assessment() {
   const { session } = useSession()
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
+  const [submitting, setSubmitting] = useState(false)
 
   const question = QUESTIONS[index]
   const selected = answers[question.id] || []
@@ -30,8 +31,9 @@ export default function Assessment() {
     })
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (isLast) {
+      setSubmitting(true)
       const scores = computeScores(answers)
       const result = {
         id: uuidv4(),
@@ -44,7 +46,7 @@ export default function Assessment() {
         scores,
         createdAt: new Date().toISOString(),
       }
-      saveResult(result)
+      await saveResult(result)
       logEvent('assessment_completed', {
         dominant_style: scores.dominantStyle,
         empathy_score: scores.empathyScore,
@@ -76,10 +78,10 @@ export default function Assessment() {
         </button>
         <button
           onClick={handleNext}
-          disabled={!canAdvance}
+          disabled={!canAdvance || submitting}
           className="rounded-lg bg-indigo-600 px-6 py-2.5 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {isLast ? 'See Results' : 'Next'}
+          {submitting ? 'Saving...' : isLast ? 'See Results' : 'Next'}
         </button>
       </div>
     </div>

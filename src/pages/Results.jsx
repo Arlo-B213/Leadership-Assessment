@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getResultById } from '../utils/storage'
+import { getResultById } from '../utils/db'
 import { STYLES } from '../data/styles'
 import StyleRadarChart from '../components/StyleRadarChart'
 import GaugeChart from '../components/GaugeChart'
@@ -9,7 +10,15 @@ import { logEvent } from '../utils/firebase'
 
 export default function Results() {
   const { id } = useParams()
-  const result = getResultById(id)
+  const [result, setResult] = useState(undefined)
+
+  useEffect(() => {
+    getResultById(id).then(setResult)
+  }, [id])
+
+  if (result === undefined) {
+    return <p className="text-center text-slate-500">Loading results...</p>
+  }
 
   if (!result) {
     return <p className="text-center text-slate-500">Result not found.</p>

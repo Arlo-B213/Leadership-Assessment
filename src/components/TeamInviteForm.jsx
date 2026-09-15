@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { addInviteToTeam } from '../utils/storage'
+import { addInviteToTeam } from '../utils/db'
 import { openTeamInviteEmail } from '../utils/mailto'
 import { logEvent } from '../utils/firebase'
 
@@ -8,7 +8,7 @@ export default function TeamInviteForm({ team, managerName, onInvited }) {
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
@@ -16,8 +16,9 @@ export default function TeamInviteForm({ team, managerName, onInvited }) {
       return
     }
 
+    setStatus('saving')
     const inviteUrl = `${window.location.origin}${window.location.pathname}#/role?team=${team.id}&email=${encodeURIComponent(email.trim())}`
-    addInviteToTeam(team.id, email.trim())
+    await addInviteToTeam(team.id, email.trim())
     logEvent('team_invite_sent', { team_id: team.id })
     openTeamInviteEmail({ toEmail: email.trim(), teamName: team.name, managerName, inviteUrl })
 
@@ -39,9 +40,10 @@ export default function TeamInviteForm({ team, managerName, onInvited }) {
       />
       <button
         type="submit"
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm font-medium hover:bg-indigo-700"
+        disabled={status === 'saving'}
+        className="rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
       >
-        Invite
+        {status === 'saving' ? 'Saving...' : 'Invite'}
       </button>
       {error && <p className="text-sm text-red-600 sm:ml-2 self-center">{error}</p>}
       {status === 'saved' && <p className="text-sm text-emerald-600 sm:ml-2 self-center">Email opened ✓</p>}

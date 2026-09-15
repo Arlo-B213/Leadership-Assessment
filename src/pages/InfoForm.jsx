@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useSession } from '../context/useSession'
-import { getTeamById, saveTeam } from '../utils/storage'
+import { getTeamById, saveTeam } from '../utils/db'
 import { v4 as uuidv4 } from 'uuid'
 
 export default function InfoForm() {
@@ -15,10 +15,18 @@ export default function InfoForm() {
   const [email, setEmail] = useState(inviteEmail)
   const [teamName, setTeamName] = useState('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [invitedTeam, setInvitedTeam] = useState(undefined)
 
-  const invitedTeam = inviteTeamId ? getTeamById(inviteTeamId) : null
+  useEffect(() => {
+    if (!inviteTeamId) {
+      setInvitedTeam(null)
+      return
+    }
+    getTeamById(inviteTeamId).then(setInvitedTeam)
+  }, [inviteTeamId])
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim() || !email.trim()) {
       setError('Please enter both your name and email.')
@@ -29,6 +37,7 @@ export default function InfoForm() {
       return
     }
 
+    setSubmitting(true)
     let teamId = invitedTeam ? invitedTeam.id : session.teamId
     let finalTeamName = invitedTeam ? invitedTeam.name : session.teamName
 
@@ -41,7 +50,7 @@ export default function InfoForm() {
         invitedEmails: [],
         createdAt: new Date().toISOString(),
       }
-      saveTeam(team)
+      await saveTeam(team)
       teamId = team.id
       finalTeamName = team.name
     }
@@ -54,6 +63,10 @@ export default function InfoForm() {
       role: invitedTeam ? 'member' : session.role,
     })
     navigate('/assessment')
+  }
+
+  if (invitedTeam === undefined) {
+    return <p className="text-center text-slate-500">Loading...</p>
   }
 
   return (
@@ -120,9 +133,10 @@ export default function InfoForm() {
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-white font-medium hover:bg-indigo-700 transition-colors"
+          disabled={submitting}
+          className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-white font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
         >
-          Start Assessment
+          {submitting ? 'Saving...' : 'Start Assessment'}
         </button>
       </form>
     </div>

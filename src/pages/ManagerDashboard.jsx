@@ -1,14 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSession } from '../context/useSession'
-import { getTeamById, getResultsByTeam } from '../utils/storage'
+import { getTeamById, getResultsByTeam } from '../utils/db'
 import { STYLES, STYLE_ORDER } from '../data/styles'
 import StyleBarChart from '../components/StyleBarChart'
 import TeamInviteForm from '../components/TeamInviteForm'
 
 export default function ManagerDashboard() {
   const { session } = useSession()
-  const [, forceRefresh] = useState(0)
+  const [team, setTeam] = useState(undefined)
+  const [results, setResults] = useState([])
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    if (!session.teamId) return
+    let cancelled = false
+    Promise.all([getTeamById(session.teamId), getResultsByTeam(session.teamId)]).then(
+      ([teamData, resultsData]) => {
+        if (cancelled) return
+        setTeam(teamData)
+        setResults(resultsData)
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [session.teamId, refreshKey])
 
   if (!session.teamId) {
     return (
@@ -18,8 +35,9 @@ export default function ManagerDashboard() {
     )
   }
 
-  const team = getTeamById(session.teamId)
-  const results = getResultsByTeam(session.teamId)
+  if (team === undefined) {
+    return <p className="text-center text-slate-500">Loading dashboard...</p>
+  }
 
   const teamAverages = STYLE_ORDER.reduce((acc, key) => {
     const vals = results.map((r) => r.scores.percentages[key])
@@ -39,7 +57,7 @@ export default function ManagerDashboard() {
 
       <div className="bg-white border border-slate-200 rounded-xl p-6">
         <h2 className="font-semibold text-slate-900 mb-3">Invite a team member</h2>
-        <TeamInviteForm team={team} managerName={session.name} onInvited={() => forceRefresh((k) => k + 1)} />
+        <TeamInviteForm team={team} managerName={session.name} onInvited={() => setRefreshKey((k) => k + 1)} />
         {team?.invitedEmails?.length > 0 && (
           <p className="text-xs text-slate-400 mt-3">
             Invited: {team.invitedEmails.join(', ')}
