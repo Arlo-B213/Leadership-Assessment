@@ -1,26 +1,31 @@
 import { useEffect, useState } from 'react'
-import { getCurrentUser, setCurrentUser as persistUser } from '../utils/storage'
+import { watchAuthState } from '../utils/authApi'
+import { getUserProfile } from '../utils/db'
 import { SessionContext } from './session-context'
 
+// session: undefined while resolving auth state, null when logged out,
+// otherwise { uid, email, name, role, teamId, teamName }
 export function SessionProvider({ children }) {
-  const [session, setSessionState] = useState(() => getCurrentUser() || {
-    role: null,
-    name: '',
-    email: '',
-    teamId: null,
-    teamName: '',
-  })
+  const [session, setSession] = useState(undefined)
 
   useEffect(() => {
-    persistUser(session)
-  }, [session])
+    const unsubscribe = watchAuthState(async (user) => {
+      if (!user) {
+        setSession(null)
+        return
+      }
+      const profile = await getUserProfile(user.uid)
+      setSession({ uid: user.uid, email: user.email, ...profile })
+    })
+    return unsubscribe
+  }, [])
 
   function updateSession(patch) {
-    setSessionState((prev) => ({ ...prev, ...patch }))
+    setSession((prev) => (prev ? { ...prev, ...patch } : patch))
   }
 
   function resetSession() {
-    setSessionState({ role: null, name: '', email: '', teamId: null, teamName: '' })
+    setSession(null)
   }
 
   return (

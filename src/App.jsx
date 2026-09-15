@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Layout from './components/Layout'
 import Welcome from './pages/Welcome'
 import RoleSelect from './pages/RoleSelect'
-import InfoForm from './pages/InfoForm'
+import AuthForm from './pages/AuthForm'
 import Assessment from './pages/Assessment'
 import Results from './pages/Results'
 import Roadmap from './pages/Roadmap'
@@ -22,7 +22,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/role" element={<RoleSelect />} />
-        <Route path="/info" element={<InfoForm />} />
+        <Route path="/auth" element={<AuthForm />} />
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/results/:id" element={<Results />} />
         <Route path="/roadmap/:id" element={<Roadmap />} />

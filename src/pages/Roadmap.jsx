@@ -2,16 +2,34 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getResultById } from '../utils/db'
 import { buildRoadmap } from '../utils/scoring'
+import { useSession } from '../context/useSession'
 
 export default function Roadmap() {
   const { id } = useParams()
+  const { session } = useSession()
   const [result, setResult] = useState(undefined)
+  const [denied, setDenied] = useState(false)
 
   useEffect(() => {
-    getResultById(id).then(setResult)
-  }, [id])
+    if (!session) return
+    getResultById(id)
+      .then(setResult)
+      .catch(() => setDenied(true))
+  }, [id, session])
 
-  if (result === undefined) return <p className="text-center text-slate-500">Loading roadmap...</p>
+  if (session === undefined || (session && result === undefined && !denied)) {
+    return <p className="text-center text-slate-500">Loading roadmap...</p>
+  }
+  if (session === null) {
+    return (
+      <p className="text-center text-slate-500">
+        Log in to view this roadmap. <Link to="/role" className="text-indigo-600 hover:underline">Log in</Link>
+      </p>
+    )
+  }
+  if (denied) {
+    return <p className="text-center text-slate-500">You don't have access to this roadmap.</p>
+  }
   if (!result) return <p className="text-center text-slate-500">Result not found.</p>
 
   const roadmap = buildRoadmap(result.scores)

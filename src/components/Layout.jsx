@@ -1,8 +1,15 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useSession } from '../context/useSession'
+import { logOut } from '../utils/authApi'
 
 export default function Layout({ children }) {
-  const { session, resetSession } = useSession()
+  const { session } = useSession()
+  const navigate = useNavigate()
+
+  async function handleLogOut() {
+    await logOut()
+    navigate('/')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-slate-800">
@@ -11,7 +18,7 @@ export default function Layout({ children }) {
           <Link to="/" className="font-semibold text-lg text-indigo-600">
             Management Assessment
           </Link>
-          {session.role && (
+          {session && (
             <div className="flex items-center gap-4 text-sm">
               <span className="text-slate-500 hidden sm:inline">
                 {session.name || session.email} · {session.role === 'manager' ? 'Manager' : 'Team Member'}
@@ -21,13 +28,9 @@ export default function Layout({ children }) {
                   Dashboard
                 </Link>
               )}
-              <Link
-                to="/"
-                onClick={resetSession}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                Exit
-              </Link>
+              <button onClick={handleLogOut} className="text-slate-400 hover:text-slate-600">
+                Log out
+              </button>
             </div>
           )}
         </div>

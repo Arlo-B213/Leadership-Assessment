@@ -1,15 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /results/{resultId} {
-      allow read: if true;
-      allow create: if true;
-      allow update, delete: if false;
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+
     match /teams/{teamId} {
+      // Team name/invite list must be readable pre-auth (invite links show
+      // "you're joining X" before the invitee has an account).
       allow read: if true;
-      allow create, update: if true;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.managerUid;
+      allow update: if request.auth != null && request.auth.uid == resource.data.managerUid;
       allow delete: if false;
+    }
+
+    match /results/{resultId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.ownerUid ||
+        (resource.data.teamId != null &&
+          get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data.managerUid == request.auth.uid)
+      );
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+      allow update, delete: if false;
     }
   }
 }

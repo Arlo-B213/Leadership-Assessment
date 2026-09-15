@@ -1,15 +1,14 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useSession } from '../context/useSession'
 
 export default function RoleSelect() {
   const navigate = useNavigate()
-  const { updateSession } = useSession()
   const [searchParams] = useSearchParams()
   const invited = Boolean(searchParams.get('team'))
 
   function choose(role) {
-    updateSession({ role })
-    navigate(`/info?${searchParams.toString()}`)
+    const params = new URLSearchParams(searchParams)
+    params.set('role', role)
+    navigate(`/auth?${params.toString()}`)
   }
 
   return (

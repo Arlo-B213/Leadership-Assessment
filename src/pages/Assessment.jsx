@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { QUESTIONS } from '../data/questions'
 import { computeScores } from '../utils/scoring'
 import { useSession } from '../context/useSession'
@@ -15,6 +15,9 @@ export default function Assessment() {
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [submitting, setSubmitting] = useState(false)
+
+  if (session === undefined) return <p className="text-center text-slate-500">Loading...</p>
+  if (session === null) return <Navigate to="/role" replace />
 
   const question = QUESTIONS[index]
   const selected = answers[question.id] || []
@@ -37,6 +40,7 @@ export default function Assessment() {
       const scores = computeScores(answers)
       const result = {
         id: uuidv4(),
+        ownerUid: session.uid,
         name: session.name,
         email: session.email,
         role: session.role,

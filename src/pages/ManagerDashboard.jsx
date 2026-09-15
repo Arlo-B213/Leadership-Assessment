@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useSession } from '../context/useSession'
 import { getTeamById, getResultsByTeam } from '../utils/db'
 import { STYLES, STYLE_ORDER } from '../data/styles'
@@ -11,26 +11,28 @@ export default function ManagerDashboard() {
   const [team, setTeam] = useState(undefined)
   const [results, setResults] = useState([])
   const [refreshKey, setRefreshKey] = useState(0)
+  const teamId = session?.teamId
 
   useEffect(() => {
-    if (!session.teamId) return
+    if (!teamId) return
     let cancelled = false
-    Promise.all([getTeamById(session.teamId), getResultsByTeam(session.teamId)]).then(
-      ([teamData, resultsData]) => {
-        if (cancelled) return
-        setTeam(teamData)
-        setResults(resultsData)
-      },
-    )
+    Promise.all([getTeamById(teamId), getResultsByTeam(teamId)]).then(([teamData, resultsData]) => {
+      if (cancelled) return
+      setTeam(teamData)
+      setResults(resultsData)
+    })
     return () => {
       cancelled = true
     }
-  }, [session.teamId, refreshKey])
+  }, [teamId, refreshKey])
 
-  if (!session.teamId) {
+  if (session === undefined) return <p className="text-center text-slate-500">Loading...</p>
+  if (session === null) return <Navigate to="/role" replace />
+
+  if (!teamId) {
     return (
       <p className="text-center text-slate-500">
-        No team found. <Link to="/info" className="text-indigo-600 hover:underline">Set up your team</Link>.
+        No team found. <Link to="/role" className="text-indigo-600 hover:underline">Set up your team</Link>.
       </p>
     )
   }

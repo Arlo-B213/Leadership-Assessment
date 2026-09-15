@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
+import { useSession } from '../context/useSession'
 
 export default function Welcome() {
   const navigate = useNavigate()
+  const { session } = useSession()
 
   return (
     <div className="text-center max-w-2xl mx-auto">
@@ -13,12 +15,21 @@ export default function Welcome() {
         A 20-question assessment covering decision-making, communication, feedback,
         empathy, and more — plus a personalized roadmap to grow as a leader.
       </p>
-      <button
-        onClick={() => navigate('/role')}
-        className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-white font-medium hover:bg-indigo-700 transition-colors"
-      >
-        Get Started
-      </button>
+      {session ? (
+        <button
+          onClick={() => navigate(session.role === 'manager' ? '/dashboard' : '/assessment')}
+          className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-white font-medium hover:bg-indigo-700 transition-colors"
+        >
+          {session.role === 'manager' ? 'Go to Dashboard' : 'Take the Assessment'}
+        </button>
+      ) : (
+        <button
+          onClick={() => navigate('/role')}
+          className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-white font-medium hover:bg-indigo-700 transition-colors"
+        >
+          Get Started
+        </button>
+      )}
 
       <div className="grid sm:grid-cols-3 gap-4 mt-12 text-left">
         <FeatureCard title="20 questions" desc="Covering 5 core management dimensions, answered in about 8 minutes." />

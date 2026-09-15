@@ -7,17 +7,40 @@ import GaugeChart from '../components/GaugeChart'
 import StyleBarChart from '../components/StyleBarChart'
 import { openResultsEmail } from '../utils/mailto'
 import { logEvent } from '../utils/firebase'
+import { useSession } from '../context/useSession'
 
 export default function Results() {
   const { id } = useParams()
+  const { session } = useSession()
   const [result, setResult] = useState(undefined)
+  const [denied, setDenied] = useState(false)
 
   useEffect(() => {
-    getResultById(id).then(setResult)
-  }, [id])
+    if (session === undefined) return
+    if (session === null) return
+    getResultById(id)
+      .then(setResult)
+      .catch(() => setDenied(true))
+  }, [id, session])
 
-  if (result === undefined) {
+  if (session === undefined || (session && result === undefined && !denied)) {
     return <p className="text-center text-slate-500">Loading results...</p>
+  }
+
+  if (session === null) {
+    return (
+      <p className="text-center text-slate-500">
+        Log in to view this result. <Link to="/role" className="text-indigo-600 hover:underline">Log in</Link>
+      </p>
+    )
+  }
+
+  if (denied) {
+    return (
+      <p className="text-center text-slate-500">
+        You don't have access to this result — only the person who took it (or their manager) can view it.
+      </p>
+    )
   }
 
   if (!result) {
