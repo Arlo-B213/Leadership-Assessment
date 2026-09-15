@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getResultById } from '../utils/db'
+import { getResultById, getCommitmentsByOwner } from '../utils/db'
 import { buildRoadmap } from '../utils/scoring'
 import { useSession } from '../context/useSession'
+import CommitButton from '../components/CommitButton'
 
 export default function Roadmap() {
   const { id } = useParams()
   const { session } = useSession()
   const [result, setResult] = useState(undefined)
   const [denied, setDenied] = useState(false)
+  const [existingCommitments, setExistingCommitments] = useState([])
 
   useEffect(() => {
     if (!session) return
     getResultById(id)
       .then(setResult)
       .catch(() => setDenied(true))
+    getCommitmentsByOwner(session.uid).then(setExistingCommitments)
   }, [id, session])
 
   if (session === undefined || (session && result === undefined && !denied)) {
@@ -53,8 +56,19 @@ export default function Roadmap() {
               </span>
               <h2 className="font-semibold text-slate-900">{area.title}</h2>
             </div>
-            <ul className="space-y-2 text-sm text-slate-600 list-disc list-inside ml-1">
-              {area.items.map((item, j) => <li key={j}>{item}</li>)}
+            <ul className="space-y-2 text-sm text-slate-600 ml-1">
+              {area.items.map((item, j) => (
+                <li key={j} className="flex items-start justify-between gap-3 border-b border-slate-50 last:border-0 pb-2 last:pb-0">
+                  <span className="flex-1">• {item}</span>
+                  <CommitButton
+                    ownerUid={session.uid}
+                    resultId={result.id}
+                    area={area.title}
+                    text={item}
+                    alreadyCommitted={existingCommitments.some((c) => c.resultId === result.id && c.text === item)}
+                  />
+                </li>
+              ))}
             </ul>
           </div>
         ))}

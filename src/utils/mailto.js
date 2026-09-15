@@ -14,6 +14,16 @@ export function openResultsEmail({ toEmail, toName, dominantStyle, empathyScore,
   window.location.href = buildMailto(toEmail, subject, body)
 }
 
+export function openFeedbackRequestEmail({ toEmail, requesterName, feedbackUrl }) {
+  const subject = `Quick anonymous feedback for ${requesterName}?`
+  const body =
+    `Hi,\n\n` +
+    `${requesterName} is asking for quick, anonymous feedback on their management style. ` +
+    `It takes about 3 minutes and your individual answers aren't shown to them - only combined results.\n\n` +
+    `Click below to give feedback:\n${feedbackUrl}\n`
+  window.location.href = buildMailto(toEmail, subject, body)
+}
+
 export function openTeamInviteEmail({ toEmail, teamName, managerName, inviteUrl }) {
   const subject = `You're invited to join ${teamName} on Management Assessment`
   const body =

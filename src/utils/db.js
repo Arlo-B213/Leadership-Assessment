@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore'
 import { db } from './firebase'
 
 // ---- User profiles (role/team, keyed by auth uid) ----
@@ -52,4 +52,48 @@ export async function addInviteToTeam(teamId, email) {
   if (!team.invitedEmails.includes(email)) team.invitedEmails.push(email)
   await saveTeam(team)
   return team
+}
+
+// ---- Roadmap commitments (private accountability nudges) ----
+export async function saveCommitment(commitment) {
+  await setDoc(doc(db, 'commitments', commitment.id), commitment)
+  return commitment
+}
+
+export async function getCommitmentsByOwner(ownerUid) {
+  const q = query(collection(db, 'commitments'), where('ownerUid', '==', ownerUid))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => d.data())
+}
+
+export async function updateCommitmentStatus(id, status) {
+  await updateDoc(doc(db, 'commitments', id), { status, respondedAt: new Date().toISOString() })
+}
+
+// ---- 360 peer feedback ----
+export async function saveFeedbackRequest(request) {
+  await setDoc(doc(db, 'feedbackRequests', request.id), request)
+  return request
+}
+
+export async function getFeedbackRequestById(id) {
+  const snap = await getDoc(doc(db, 'feedbackRequests', id))
+  return snap.exists() ? snap.data() : null
+}
+
+export async function saveFeedbackResponse(response) {
+  await setDoc(doc(db, 'feedbackResponses', response.id), response)
+  return response
+}
+
+export async function getFeedbackResponses(requestId) {
+  const q = query(collection(db, 'feedbackResponses'), where('requestId', '==', requestId))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => d.data())
+}
+
+export async function getFeedbackRequestsByRequester(requesterUid) {
+  const q = query(collection(db, 'feedbackRequests'), where('requesterUid', '==', requesterUid))
+  const snap = await getDocs(q)
+  return snap.docs.map((d) => d.data())
 }

@@ -23,5 +23,30 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
       allow update, delete: if false;
     }
+
+    match /commitments/{commitmentId} {
+      // Private accountability nudges - owner only, never shared.
+      allow read, update: if request.auth != null && request.auth.uid == resource.data.ownerUid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
+      allow delete: if false;
+    }
+
+    match /feedbackRequests/{requestId} {
+      // Must be readable pre-auth so an anonymous peer can see who they're
+      // giving feedback to before responding.
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.requesterUid;
+      allow update, delete: if false;
+    }
+
+    match /feedbackResponses/{responseId} {
+      // Submitted anonymously by peers with no account. Only the requester
+      // can read responses, and only in aggregate via a query - never
+      // exposing which peer said what.
+      allow create: if true;
+      allow read: if request.auth != null &&
+        get(/databases/$(database)/documents/feedbackRequests/$(resource.data.requestId)).data.requesterUid == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }

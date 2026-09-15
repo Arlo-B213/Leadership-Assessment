@@ -2,13 +2,13 @@ import { QUESTIONS } from '../data/questions'
 import { STYLES, STYLE_ORDER } from '../data/styles'
 
 // answers: { [questionId]: string[] } - array of selected option ids per question
-export function computeScores(answers) {
+export function computeScores(answers, questions = QUESTIONS) {
   const raw = { directive: 0, collaborative: 0, handsOff: 0, transformational: 0, eqLeader: 0 }
   let empathyRaw = 0
   let maxEmpathy = 0
   const maxPerStyle = { directive: 0, collaborative: 0, handsOff: 0, transformational: 0, eqLeader: 0 }
 
-  QUESTIONS.forEach((q) => {
+  questions.forEach((q) => {
     const selected = answers[q.id] || []
     let bestPerStyle = { directive: 0, collaborative: 0, handsOff: 0, transformational: 0, eqLeader: 0 }
     let bestEmpathy = 0
@@ -60,7 +60,7 @@ export function computeScores(answers) {
     secondaryStyle,
     weakestStyle,
     answeredCount: Object.keys(answers).filter((k) => (answers[k] || []).length > 0).length,
-    totalQuestions: QUESTIONS.length,
+    totalQuestions: questions.length,
   }
 }
 

@@ -8,6 +8,12 @@ import Assessment from './pages/Assessment'
 import Results from './pages/Results'
 import Roadmap from './pages/Roadmap'
 import ManagerDashboard from './pages/ManagerDashboard'
+import Progress from './pages/Progress'
+import ScenarioList from './pages/ScenarioList'
+import ScenarioPlay from './pages/ScenarioPlay'
+import FeedbackHub from './pages/FeedbackHub'
+import FeedbackManage from './pages/FeedbackManage'
+import FeedbackRespond from './pages/FeedbackRespond'
 import { logEvent } from './utils/firebase'
 
 export default function App() {
@@ -27,6 +33,12 @@ export default function App() {
         <Route path="/results/:id" element={<Results />} />
         <Route path="/roadmap/:id" element={<Roadmap />} />
         <Route path="/dashboard" element={<ManagerDashboard />} />
+        <Route path="/progress" element={<Progress />} />
+        <Route path="/practice" element={<ScenarioList />} />
+        <Route path="/practice/:id" element={<ScenarioPlay />} />
+        <Route path="/feedback" element={<FeedbackHub />} />
+        <Route path="/feedback/respond/:id" element={<FeedbackRespond />} />
+        <Route path="/feedback/:id" element={<FeedbackManage />} />
       </Routes>
     </Layout>
   )

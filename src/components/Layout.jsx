@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useSession } from '../context/useSession'
 import { logOut } from '../utils/authApi'
+import CheckInBanner from './CheckInBanner'
 
 export default function Layout({ children }) {
   const { session } = useSession()
@@ -23,6 +24,15 @@ export default function Layout({ children }) {
               <span className="text-slate-500 hidden sm:inline">
                 {session.name || session.email} · {session.role === 'manager' ? 'Manager' : 'Team Member'}
               </span>
+              <Link to="/progress" className="text-indigo-600 hover:underline hidden sm:inline">
+                Progress
+              </Link>
+              <Link to="/practice" className="text-indigo-600 hover:underline hidden sm:inline">
+                Practice
+              </Link>
+              <Link to="/feedback" className="text-indigo-600 hover:underline hidden sm:inline">
+                360 Feedback
+              </Link>
               {session.role === 'manager' && (
                 <Link to="/dashboard" className="text-indigo-600 hover:underline">
                   Dashboard
@@ -34,6 +44,7 @@ export default function Layout({ children }) {
             </div>
           )}
         </div>
+        {session && <CheckInBanner uid={session.uid} />}
       </header>
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">{children}</main>
     </div>
